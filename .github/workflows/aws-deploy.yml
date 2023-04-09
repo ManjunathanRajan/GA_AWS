@@ -29,6 +29,7 @@ jobs:
         echo "AWS_SECRET_ACCESS_KEY=$($CredsJson.Credentials.SecretAccessKey)" | Out-File -FilePath $env:GITHUB_ENV -Append
         echo "AWS_SESSION_TOKEN=$($CredsJson.Credentials.SessionToken)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -42,4 +43,3 @@ jobs:
     - name: Create S3 bucket
       run: |
         aws s3api create-bucket --bucket awsworkflowtesting556 --region us-west-2 --create-bucket-configuration LocationConstraint=your-region
-
