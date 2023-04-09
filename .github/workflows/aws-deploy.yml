@@ -1,0 +1,43 @@
+name: AWS Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install AWS CLI
+      run: |
+        Invoke-WebRequest "https://awscli.amazonaws.com/AWSCLIV2.msi" -OutFile "AWSCLIV2.msi"
+        msiexec.exe /i AWSCLIV2.msi /qn /norestart
+
+    - name: Install jq
+      run: choco install jq -y
+
+    - name: Assume AWS IAM role
+      shell: pwsh
+      run: |
+        $CredsJson = aws sts assume-role --role-arn ${{ secrets.AWS_ROLE_ARN }} --role-session-name GitHubActions --external-id ${{ secrets.AWS_EXTERNAL_ID }} --duration-seconds 3600 | ConvertFrom-Json
+        echo "AWS_ACCESS_KEY_ID=$($CredsJson.Credentials.AccessKeyId)" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "AWS_SECRET_ACCESS_KEY=$($CredsJson.Credentials.SecretAccessKey)" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "AWS_SESSION_TOKEN=$($CredsJson.Credentials.SessionToken)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ env.AWS_SESSION_TOKEN }}
+        aws-region: us-west-2
+
+    # Add any additional steps to deploy your application or resources to AWS
+    - name: Deploy to AWS
+      run: |
+        # Your AWS deployment commands here
