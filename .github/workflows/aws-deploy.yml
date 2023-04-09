@@ -13,10 +13,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install AWS CLI
+    - name: Install AWS CLI on Windows
       run: |
+        $ProgressPreference = "SilentlyContinue"
         Invoke-WebRequest "https://awscli.amazonaws.com/AWSCLIV2.msi" -OutFile "AWSCLIV2.msi"
-        msiexec.exe /i AWSCLIV2.msi /qn /norestart
+        Start-Process msiexec.exe -Wait -ArgumentList "/i AWSCLIV2.msi /quiet"
 
     - name: Install jq
       run: choco install jq -y
