@@ -37,7 +37,9 @@ jobs:
         aws-session-token: ${{ env.AWS_SESSION_TOKEN }}
         aws-region: us-west-2
 
+    # ...
     # Add any additional steps to deploy your application or resources to AWS
-    - name: Deploy to AWS
+    - name: Create S3 bucket
       run: |
-        # Your AWS deployment commands here
+        aws s3api create-bucket --bucket awsworkflowtesting556 --region us-west-2 --create-bucket-configuration LocationConstraint=your-region
+
