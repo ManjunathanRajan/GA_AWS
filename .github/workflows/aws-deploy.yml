@@ -25,10 +25,16 @@ jobs:
     - name: Assume AWS IAM role
       shell: pwsh
       run: |
-        $CredsJson = aws sts assume-role --role-arn ${{ secrets.AWS_ROLE_ARN }} --role-session-name GitHubActions --external-id ${{ secrets.AWS_EXTERNAL_ID }} --duration-seconds 3600 | ConvertFrom-Json
-        echo "AWS_ACCESS_KEY_ID=$($CredsJson.Credentials.AccessKeyId)" | Out-File -FilePath $env:GITHUB_ENV -Append
-        echo "AWS_SECRET_ACCESS_KEY=$($CredsJson.Credentials.SecretAccessKey)" | Out-File -FilePath $env:GITHUB_ENV -Append
-        echo "AWS_SESSION_TOKEN=$($CredsJson.Credentials.SessionToken)" | Out-File -FilePath $env:GITHUB_ENV -Append
+        try {
+          $CredsJson = aws sts assume-role --role-arn ${{ secrets.AWS_ROLE_ARN }} --role-session-name GitHubActions --external-id ${{ secrets.AWS_EXTERNAL_ID }} --duration-seconds 3600 | ConvertFrom-Json
+          echo "AWS_ACCESS_KEY_ID=$($CredsJson.Credentials.AccessKeyId)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "AWS_SECRET_ACCESS_KEY=$($CredsJson.Credentials.SecretAccessKey)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "AWS_SESSION_TOKEN=$($CredsJson.Credentials.SessionToken)" | Out-File -FilePath $env:GITHUB_ENV -Append
+        }
+        catch {
+          Write-Error "Failed to assume AWS IAM role: $_"
+          exit 1
+        }
 
 
     - name: Configure AWS credentials
