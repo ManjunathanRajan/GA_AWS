@@ -36,4 +36,4 @@ jobs:
     # Add any additional steps to deploy your application or resources to AWS
     - name: Create S3 bucket
       run: |
-        aws s3api create-bucket --bucket awsworkflowtesting556 --region us-west-2 --create-bucket-configuration LocationConstraint=your-region
+        aws s3api create-bucket --bucket awsworkflowtesting556 --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
