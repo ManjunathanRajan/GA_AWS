@@ -34,10 +34,12 @@ jobs:
 
     - name: Read bucket name from secret
       run: echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> $GITHUB_ENV
+      shell: bash
 
     - name: Print bucket name
       run: |
-        echo "Bucket name: ${{ env.BUCKET_NAME }}"
+        echo "Bucket name: ${{ env.BUCKET_NAME }}" 
+      shell: bash
 
     - name: Copy files to the website, upload, and zip with the AWS CLI
       run: |
@@ -50,3 +52,6 @@ jobs:
         aws s3 cp "s3://${BUCKET_NAME}" "s3://${BUCKET_NAME}/${ZIP_NAME}" --recursive --exclude '*' --include '*'
         # Print the URL of the zipped files
         echo "Zipped files URL: https://s3.${AWS_REGION}.amazonaws.com/${BUCKET_NAME}/${ZIP_NAME}"
+      shell: bash
+      env:
+        BUCKET_NAME: ${{ env.BUCKET_NAME }}
