@@ -24,6 +24,7 @@ jobs:
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip awscliv2.zip
         sudo ./aws/install --update
+
     - name: Install jq
       run: sudo apt-get install jq
 
@@ -41,15 +42,17 @@ jobs:
         aws s3api create-bucket --bucket "${BUCKET_NAME}" --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
 
     - name: Install dependencies
-      run: npm install tweetnacl
+      run: npm install tweetnacl tweetnacl-util
 
     - name: Set BUCKET_NAME secret
       uses: actions/github-script@v5
       with:
          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
          script: |
-           const bucketName = process.env.BUCKET_NAME;
-      
+           const nacl = require('tweetnacl');
+           const naclUtil = require('tweetnacl-util');
+           const bucketName = "${{ steps.create_bucket.outputs.BUCKET_NAME }}";
+
            // Fetch the public key
            const { data: publicKey } = await github.rest.actions.getRepoPublicKey({
              owner: context.repo.owner,
@@ -57,16 +60,16 @@ jobs:
            });
            
            // Encrypt the secret using the public key
-           const nacl = require('tweetnacl');
            const messageBytes = nacl.util.decodeUTF8(bucketName);
            const keyBytes = nacl.util.decodeBase64(publicKey.key);
-           const encryptedBytes = nacl.box(messageBytes, new Uint8Array(24), keyBytes);
+           const encryptedBytes = nacl.box.keyPair.fromSecretKey(keyBytes).publicKey;
+           const encryptedValue = naclUtil.encodeBase64(encryptedBytes);
 
            // Update the repository secret
            await github.rest.actions.createOrUpdateRepoSecret({
              owner: context.repo.owner,
              repo: context.repo.repo,
              secret_name: 'BUCKET_NAME',
-             encrypted_value: nacl.util.encodeBase64(encryptedBytes),
+             encrypted_value: encryptedValue,
              key_id: publicKey.key_id
              });
