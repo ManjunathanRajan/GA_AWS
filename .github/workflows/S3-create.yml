@@ -57,7 +57,7 @@ jobs:
            });
            
            // Encrypt the secret using the public key
-           const sodium = require('tweetnacl');
+           const nacl = require('tweetnacl');
            const messageBytes = nacl.util.decodeUTF8(bucketName);
            const keyBytes = nacl.util.decodeBase64(publicKey.key);
            const encryptedBytes = nacl.box(messageBytes, new Uint8Array(24), keyBytes);
