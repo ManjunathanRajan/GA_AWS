@@ -42,34 +42,12 @@ jobs:
         aws s3api create-bucket --bucket "${BUCKET_NAME}" --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
 
     - name: Install dependencies
-      run: npm install tweetnacl tweetnacl-util
+      run: npm install @octokit/rest tweetnacl tweetnacl-util
 
-    - name: Set BUCKET_NAME secret
-      uses: actions/github-script@v5
-      with:
-         github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-         script: |
-           const nacl = require('tweetnacl');
-           const naclUtil = require('tweetnacl-util');
-           const bucketName = "${{ steps.create_bucket.outputs.BUCKET_NAME }}";
-
-           // Fetch the public key
-           const { data: publicKey } = await github.rest.actions.getRepoPublicKey({
-             owner: context.repo.owner,
-             repo: context.repo.repo,
-           });
-           
-           // Encrypt the secret using the public key
-           const messageBytes = nacl.util.decodeUTF8(bucketName);
-           const keyBytes = nacl.util.decodeBase64(publicKey.key);
-           const encryptedBytes = nacl.box.keyPair.fromSecretKey(keyBytes).publicKey;
-           const encryptedValue = naclUtil.encodeBase64(encryptedBytes);
-
-           // Update the repository secret
-           await github.rest.actions.createOrUpdateRepoSecret({
-             owner: context.repo.owner,
-             repo: context.repo.repo,
-             secret_name: 'BUCKET_NAME',
-             encrypted_value: encryptedValue,
-             key_id: publicKey.key_id
-             });
+    - name: Run setSecret script
+      env:
+        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        REPO_OWNER: ${{ github.repository_owner }}
+        REPO_NAME: ${{ github.event.repository.name }}
+        BUCKET_NAME: ${{ steps.create_bucket.outputs.BUCKET_NAME }}
+      run: node setSecret.js
