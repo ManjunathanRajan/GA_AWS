@@ -26,25 +26,24 @@ jobs:
     - name: Install jq
       run: sudo apt-get install jq
 
-    # Steps to deploy your resources to AWS
+    - name: Configure AWS credentials with GitHub token provider
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
+        role-session-name: GitHub-Action-Role
+        aws-region: ${{ env.AWS_REGION }}
+
     - name: Create S3 bucket with date and time
       run: |
         TIMESTAMP=$(date '+%Y-%m-%d-%H-%M-%S')
         BUCKET_NAME="my-s3-bucket-from-github-action-${TIMESTAMP}"
         aws s3api create-bucket --bucket "${BUCKET_NAME}" --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
-        echo "BUCKET_NAME=${BUCKET_NAME}" > bucket_name.txt
-    - name: Upload bucket name as artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: bucket-name
-        path: bucket_name.txt
 
     - name: Set BUCKET_NAME secret
       uses: actions/github-script@v5
       with:
         script: |
-          const fs = require('fs');
-          const bucketName = fs.readFileSync('bucket_name.txt', 'utf8').trim();
+          const bucketName = "${{ steps.create_bucket.outputs.BUCKET_NAME }}";
           await github.rest.actions.createOrUpdateRepoSecret({
             owner: context.repo.owner,
             repo: context.repo.repo,
