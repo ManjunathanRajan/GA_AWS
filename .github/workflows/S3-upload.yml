@@ -22,6 +22,7 @@ jobs:
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip awscliv2.zip
         sudo ./aws/install --update
+
     - name: Install jq
       run: sudo apt-get install jq
 
@@ -33,16 +34,17 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Read bucket name from secret
-      run: echo "BUCKET_NAME=$(echo "my-s3-bucket-from-github-action-$GITHUB_RUN_NUMBER" | tr '[:upper:]' '[:lower:]' | tr -d '_')" >> $GITHUB_ENV
+      run: echo "BUCKET_NAME=$(echo "my-s3-bucket-from-github-action")" >> $GITHUB_ENV
 
-    - name: Copy files to the website, upload, and zip with the AWS CLI
+    - name: Sync files to S3 bucket
+      run: aws s3 sync . s3://${{ env.BUCKET_NAME }}
+
+    - name: Zip the contents of the S3 bucket
       run: |
-        BUCKET_NAME="${{ env.BUCKET_NAME }}"
-        # Sync files to the S3 bucket
-        aws s3 sync . "s3://${BUCKET_NAME}"
-        # Zip the contents of the S3 bucket
         TIMESTAMP=$(date '+%Y-%m-%d-%H-%M-%S')
         ZIP_NAME="website-files-${TIMESTAMP}.zip"
-        aws s3 cp "s3://${BUCKET_NAME}" "s3://${BUCKET_NAME}/${ZIP_NAME}" --recursive --exclude '*' --include '*'
-        # Print the URL of the zipped files
-        echo "Zipped files URL: https://s3.${AWS_REGION}.amazonaws.com/${BUCKET_NAME}/${ZIP_NAME}"
+        aws s3 cp "s3://${{ env.BUCKET_NAME }}" "s3://${{ env.BUCKET_NAME }}/${ZIP_NAME}" --recursive --exclude '*' --include '*'
+
+    - name: Print the URL of the zipped files
+      run: |
+        echo "Zipped files URL: https://s3.${AWS_REGION}.amazonaws.com/${{ env.BUCKET_NAME }}/${ZIP_NAME}"
