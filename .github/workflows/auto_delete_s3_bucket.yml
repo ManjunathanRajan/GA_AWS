@@ -1,17 +1,13 @@
-name: Auto Delete S3 Bucket
+name: Auto Delete S3 Buckets
 
 on:
-  workflow_dispatch:
-    inputs:
-      bucket_name:
-        description: 'S3 Bucket Name'
-        required: true
+  workflow_dispatch: {}
 
 env:
   AWS_REGION: us-west-2
 
 jobs:
-  delete_s3_bucket:
+  delete_s3_buckets:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -37,12 +33,12 @@ jobs:
         role-session-name: GitHub-Action-Role
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Check and Delete S3 Bucket
+    - name: Check and Delete S3 Buckets
       run: |
-          BUCKET_NAME="${{ github.event.inputs.bucket_name }}"
-          if aws s3api head-bucket --bucket $BUCKET_NAME 2>/dev/null; then
-            aws s3 rm s3://$BUCKET_NAME --recursive
-            aws s3api delete-bucket --bucket $BUCKET_NAME
-          else
-            echo "Bucket does not exist or access denied"
+        for bucket in $(aws s3api list-buckets --query "Buckets[].Name" --output text); do
+          if [[ $bucket != *"my-s3-bucket-from-github-action"* ]]; then
+            echo "Deleting bucket: $bucket"
+            aws s3 rm s3://$bucket --recursive
+            aws s3api delete-bucket --bucket $bucket
           fi
+        done
