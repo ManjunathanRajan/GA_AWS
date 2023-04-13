@@ -38,6 +38,7 @@ jobs:
 
     - name: Copy files to the website, upload, and zip with the AWS CLI
       run: |
+        BUCKET_NAME="${{ secrets.BUCKET_NAME }}"
         # Sync files to the S3 bucket
         aws s3 sync . "s3://${BUCKET_NAME}"
 
