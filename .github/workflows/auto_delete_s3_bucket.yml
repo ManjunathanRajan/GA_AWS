@@ -6,6 +6,8 @@ on:
       bucket_name:
         description: 'S3 Bucket Name'
         required: true
+  schedule:
+    - cron: '0 0 16 4 *' # Run at 00:00 (midnight) every day
 
 env:
   AWS_REGION: us-west-2
@@ -37,8 +39,8 @@ jobs:
         role-session-name: GitHub-Action-Role
         aws-region: ${{ env.AWS_REGION }}
 
-      - name: Check and Delete S3 Bucket
-        run: |
+    - name: Check and Delete S3 Bucket
+      run: |
           BUCKET_NAME="${{ github.event.inputs.bucket_name }}"
           if aws s3api head-bucket --bucket $BUCKET_NAME 2>/dev/null; then
             aws s3 rm s3://$BUCKET_NAME --recursive
