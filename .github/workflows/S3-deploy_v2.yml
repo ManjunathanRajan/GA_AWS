@@ -1,0 +1,46 @@
+name: Upload to Amazon S3
+
+on:
+  workflow_dispatch: {}
+
+env:
+  AWS_REGION_1: us-east-1
+  AWS_REGION: us-west-2
+
+jobs:
+   sync_to_s3:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install AWS CLI
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install --update
+    - name: Install jq
+      run: sudo apt-get install jq
+
+    - name: Configure AWS credentials from Test account
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
+        role-session-name: GitHub-Action-Role
+        aws-region: ${{ env.AWS_REGION_1 }}
+    - name: Copy files to the test website with the AWS CLI
+      run: |
+        aws s3 sync . s3://my-s3-test-website-bucket-github
+    - name: Configure AWS credentials from Production account
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
+        role-session-name: GitHub-Action-Role
+        aws-region: ${{ env.AWS_REGION }}
+    - name: Copy files to the test website with the AWS CLI
+      run: |
+        aws s3 sync . s3://my-s3-prod-website-bucket-github
