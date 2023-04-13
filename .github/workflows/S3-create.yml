@@ -5,7 +5,8 @@ on:
 
 env:
   AWS_REGION: us-west-2
-  
+  GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
 jobs:
   create_bucket:
     runs-on: ubuntu-latest
