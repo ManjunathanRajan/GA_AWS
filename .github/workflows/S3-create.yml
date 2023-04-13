@@ -42,7 +42,7 @@ jobs:
     - name: Install dependencies
       run: |
         echo '{}' > package.json
-        npm install @liskhq/bignum
+        npm install tweetsodium
 
     - name: Set BUCKET_NAME secret
       uses: actions/github-script@v5
@@ -52,20 +52,22 @@ jobs:
       
            // Fetch the public key
            const { data: publicKey } = await github.rest.actions.getRepoPublicKey({
-           owner: context.repo.owner,
-           repo: context.repo.repo,
+             owner: context.repo.owner,
+             repo: context.repo.repo,
            });
 
            // Encrypt the secret using the public key
-           const sodium = require('@liskhq/bignum');
-           const encryptedValue = sodium.sealedbox.seal(Buffer.from(bucketName), Buffer.from(publicKey.key, 'base64'));
+           const sodium = require('tweetsodium');
+           const messageBytes = Buffer.from(bucketName);
+           const keyBytes = Buffer.from(publicKey.key, 'base64');
+           const encryptedBytes = sodium.seal(messageBytes, keyBytes);
 
            // Update the repository secret
            await github.rest.actions.createOrUpdateRepoSecret({
              owner: context.repo.owner,
              repo: context.repo.repo,
              secret_name: 'BUCKET_NAME',
-             encrypted_value: encryptedValue.toString('base64'),
+             encrypted_value: Buffer.from(encryptedBytes).toString('base64'),
              key_id: publicKey.key_id
              });
       env:
