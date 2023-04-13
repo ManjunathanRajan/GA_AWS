@@ -41,12 +41,10 @@ jobs:
         aws s3api create-bucket --bucket "${BUCKET_NAME}" --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
 
     - name: Install dependencies
-      run: |
-        echo '{}' > package.json
-        npm install libsodium-wrappers
+      run: npm install tweetnacl
 
     - name: Set BUCKET_NAME secret
-      uses: actions/github-script@v6
+      uses: actions/github-script@v5
       with:
          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
          script: |
@@ -57,21 +55,18 @@ jobs:
              owner: context.repo.owner,
              repo: context.repo.repo,
            });
-
-           console.log('Public key:', publicKey.key); // Added line
            
            // Encrypt the secret using the public key
-           const sodium = require('libsodium-wrappers');
-           await sodium.ready;
-           const messageBytes = sodium.from_string(bucketName);
-           const keyBytes = sodium.from_base64(publicKey.key);
-           const encryptedBytes = sodium.crypto_box_seal(messageBytes, keyBytes);
+           const sodium = require('tweetnacl');
+           const messageBytes = nacl.util.decodeUTF8(bucketName);
+           const keyBytes = nacl.util.decodeBase64(publicKey.key);
+           const encryptedBytes = nacl.box(messageBytes, new Uint8Array(24), keyBytes);
 
            // Update the repository secret
            await github.rest.actions.createOrUpdateRepoSecret({
              owner: context.repo.owner,
              repo: context.repo.repo,
              secret_name: 'BUCKET_NAME',
-             encrypted_value: sodium.to_base64(encryptedBytes),
+             encrypted_value: nacl.util.encodeBase64(encryptedBytes),
              key_id: publicKey.key_id
              });
