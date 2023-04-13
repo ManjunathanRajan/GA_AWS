@@ -37,8 +37,7 @@ jobs:
 
     - name: Create S3 bucket with date and time
       run: |
-        COMMIT_SHA=$(echo ${GITHUB_SHA::7})
-        BUCKET_NAME="my-s3-bucket-from-github-action-${COMMIT_SHA}"
+        BUCKET_NAME="my-s3-bucket-from-github-action"
         aws s3api create-bucket --bucket "${BUCKET_NAME}" --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
 
     - name: Install dependencies
