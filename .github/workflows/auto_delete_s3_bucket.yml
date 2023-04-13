@@ -1,13 +1,17 @@
-name: S3 Create
+name: Auto Delete S3 Bucket
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      bucket_name:
+        description: 'S3 Bucket Name'
+        required: true
 
 env:
   AWS_REGION: us-west-2
-  
+
 jobs:
-  deploy:
+  delete_s3_bucket:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -33,7 +37,12 @@ jobs:
         role-session-name: GitHub-Action-Role
         aws-region: ${{ env.AWS_REGION }}
 
-    # Add any additional steps to deploy your application or resources to AWS
-    - name: Create S3 bucket
-      run: |
-        aws s3api create-bucket --bucket awsworkflowtesting556 --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
+      - name: Check and Delete S3 Bucket
+        run: |
+          BUCKET_NAME="${{ github.event.inputs.bucket_name }}"
+          if aws s3api head-bucket --bucket $BUCKET_NAME 2>/dev/null; then
+            aws s3 rm s3://$BUCKET_NAME --recursive
+            aws s3api delete-bucket --bucket $BUCKET_NAME
+          else
+            echo "Bucket does not exist or access denied"
+          fi

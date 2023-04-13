@@ -1,0 +1,39 @@
+name: S3 Create
+
+on:
+  workflow_dispatch: {}
+
+env:
+  AWS_REGION: us-west-2
+  
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install AWS CLI
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install --update
+
+    - name: Install jq
+      run: sudo apt-get install jq
+
+    - name: Configure AWS credentials with GitHub token provider
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
+        role-session-name: GitHub-Action-Role
+        aws-region: ${{ env.AWS_REGION }}
+
+    # Add any additional steps to deploy your application or resources to AWS
+    - name: Create S3 bucket
+      run: |
+        aws s3api create-bucket --bucket awsworkflowtesting556 --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
