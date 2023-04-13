@@ -49,5 +49,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         REPO_OWNER: ${{ github.repository_owner }}
         REPO_NAME: ${{ github.event.repository.name }}
-        BUCKET_NAME: ${{ steps.create_bucket.outputs.BUCKET_NAME }}
+        BUCKET_NAME: ${{ env.BUCKET_NAME }}
       run: node setSecret.js
