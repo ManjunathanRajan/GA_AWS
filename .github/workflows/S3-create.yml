@@ -36,7 +36,7 @@ jobs:
 
     - name: Create S3 bucket
       run: |
-        BUCKET_NAME=$(echo "my-s3-bucket-from-github-action-$GITHUB_RUN_NUMBER" | tr '[:upper:]' '[:lower:]' | tr -d '_')
+        BUCKET_NAME=$(echo "my-s3-bucket-from-github-action")
         aws s3api create-bucket --bucket "${BUCKET_NAME}" --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
         echo "::set-secret name=BUCKET_NAME::${BUCKET_NAME}"
     - name: Install dependencies
