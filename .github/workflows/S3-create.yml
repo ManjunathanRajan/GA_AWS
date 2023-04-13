@@ -45,9 +45,11 @@ jobs:
         script: |
           const bucketName = "${{ steps.create_bucket.outputs.BUCKET_NAME }}";
           await github.rest.actions.createOrUpdateRepoSecret({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            secret_name: 'BUCKET_NAME',
-            encrypted_value: bucketName,
-            key_id: context.repo.key_id
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          secret_name: 'BUCKET_NAME',
+          encrypted_value: bucketName,
+          key_id: context.repo.key_id
           });
+      env:
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
