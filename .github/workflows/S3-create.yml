@@ -58,6 +58,8 @@ jobs:
              repo: context.repo.repo,
            });
 
+           console.log('Public key:', publicKey.key); // Added line
+           
            // Encrypt the secret using the public key
            const sodium = require('libsodium-wrappers');
            await sodium.ready;
