@@ -6,8 +6,6 @@ on:
       bucket_name:
         description: 'S3 Bucket Name'
         required: true
-  schedule:
-    - cron: '0 0 16 4 *' # Run at 00:00 (midnight) every day
 
 env:
   AWS_REGION: us-west-2
