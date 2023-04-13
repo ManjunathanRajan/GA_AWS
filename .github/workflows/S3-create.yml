@@ -14,12 +14,6 @@ jobs:
       id-token: write
       contents: read
 
-  workflow_access:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -44,12 +38,10 @@ jobs:
         TIMESTAMP=$(date '+%Y-%m-%d-%H-%M-%S')
         BUCKET_NAME="my-s3-bucket-from-github-action-${TIMESTAMP}"
         aws s3api create-bucket --bucket "${BUCKET_NAME}" --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
-
     - name: Install dependencies
       run: |
         echo '{}' > package.json
         npm install libsodium-wrappers
-
     - name: Set BUCKET_NAME secret
       uses: actions/github-script@v5
       with:
