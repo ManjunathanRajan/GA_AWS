@@ -39,15 +39,18 @@ jobs:
         TIMESTAMP=$(date '+%Y-%m-%d-%H-%M-%S')
         BUCKET_NAME="my-s3-bucket-from-github-action-${TIMESTAMP}"
         aws s3api create-bucket --bucket "${BUCKET_NAME}" --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
+
     - name: Install dependencies
       run: |
         echo '{}' > package.json
         npm install libsodium-wrappers
+
     - name: Set BUCKET_NAME secret
-      uses: actions/github-script@v5
+      uses: actions/github-script@v6
       with:
+         github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
          script: |
-           const bucketName = "${{ steps.create_bucket.outputs.BUCKET_NAME }}";
+           const bucketName = process.env.BUCKET_NAME;
       
            // Fetch the public key
            const { data: publicKey } = await github.rest.actions.getRepoPublicKey({
@@ -70,5 +73,3 @@ jobs:
              encrypted_value: sodium.to_base64(encryptedBytes),
              key_id: publicKey.key_id
              });
-      env:
-        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
