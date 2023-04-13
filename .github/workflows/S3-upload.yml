@@ -32,13 +32,21 @@ jobs:
         role-session-name: GitHub-Action-Role
         aws-region: ${{ env.AWS_REGION }}
 
+    - name: Read bucket name from secret
+      run: echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> $GITHUB_ENV
+
+    - name: Print bucket name
+      run: |
+        echo "Bucket name: ${{ env.BUCKET_NAME }}"
+
     - name: Copy files to the website, upload, and zip with the AWS CLI
       run: |
+        BUCKET_NAME="${{ env.BUCKET_NAME }}"
         # Sync files to the S3 bucket
-        aws s3 sync . "s3://${{ secrets.BUCKET_NAME }}"
+        aws s3 sync . "s3://${BUCKET_NAME}"
         # Zip the contents of the S3 bucket
         TIMESTAMP=$(date '+%Y-%m-%d-%H-%M-%S')
         ZIP_NAME="website-files-${TIMESTAMP}.zip"
-        aws s3 cp "s3://${{ secrets.BUCKET_NAME }}" "s3://${{ secrets.BUCKET_NAME }}/${ZIP_NAME}" --recursive --exclude '*' --include '*'
+        aws s3 cp "s3://${BUCKET_NAME}" "s3://${BUCKET_NAME}/${ZIP_NAME}" --recursive --exclude '*' --include '*'
         # Print the URL of the zipped files
-        echo "Zipped files URL: https://s3.${AWS_REGION}.amazonaws.com/${{ secrets.BUCKET_NAME }}/${ZIP_NAME}"
+        echo "Zipped files URL: https://s3.${AWS_REGION}.amazonaws.com/${BUCKET_NAME}/${ZIP_NAME}"
