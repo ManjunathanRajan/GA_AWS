@@ -42,14 +42,26 @@ jobs:
     - name: Set BUCKET_NAME secret
       uses: actions/github-script@v5
       with:
-        script: |
-          const bucketName = "${{ steps.create_bucket.outputs.BUCKET_NAME }}";
-          await github.rest.actions.createOrUpdateRepoSecret({
-          owner: context.repo.owner,
-          repo: context.repo.repo,
-          secret_name: 'BUCKET_NAME',
-          encrypted_value: bucketName,
-          key_id: context.repo.key_id
-          });
+         script: |
+           const bucketName = "${{ steps.create_bucket.outputs.BUCKET_NAME }}";
+      
+           // Fetch the public key
+           const { data: publicKey } = await github.rest.actions.getRepoPublicKey({
+           owner: context.repo.owner,
+           repo: context.repo.repo,
+           });
+
+           // Encrypt the secret using the public key
+           const sodium = require('@liskhq/bignum');
+           const encryptedValue = sodium.sealedbox.seal(Buffer.from(bucketName), Buffer.from(publicKey.key, 'base64'));
+
+           // Update the repository secret
+           await github.rest.actions.createOrUpdateRepoSecret({
+             owner: context.repo.owner,
+             repo: context.repo.repo,
+             secret_name: 'BUCKET_NAME',
+             encrypted_value: encryptedValue.toString('base64'),
+             key_id: publicKey.key_id
+             });
       env:
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
