@@ -36,9 +36,7 @@ jobs:
     - name: Check and Delete S3 Buckets
       run: |
         for bucket in $(aws s3api list-buckets --query "Buckets[].Name" --output text); do
-          if [[ $bucket != *"my-s3-bucket-from-github-action"* ]]; then
-            echo "Deleting bucket: $bucket"
-            aws s3 rm s3://$bucket --recursive
-            aws s3api delete-bucket --bucket $bucket
-          fi
+          echo "Deleting bucket: $bucket"
+          aws s3 rm s3://$bucket --recursive
+          aws s3api delete-bucket --bucket $bucket
         done
