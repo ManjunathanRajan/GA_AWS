@@ -24,7 +24,6 @@ jobs:
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip awscliv2.zip
         sudo ./aws/install --update
-
     - name: Install jq
       run: sudo apt-get install jq
 
@@ -35,11 +34,11 @@ jobs:
         role-session-name: GitHub-Action-Role
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Create S3 bucket with date and time
+    - name: Create S3 bucket
       run: |
-        BUCKET_NAME="my-s3-bucket-from-github-action"
+        BUCKET_NAME=$(echo "my-s3-bucket-from-github-action-$GITHUB_RUN_NUMBER" | tr '[:upper:]' '[:lower:]' | tr -d '_')
         aws s3api create-bucket --bucket "${BUCKET_NAME}" --region us-west-2 --create-bucket-configuration LocationConstraint=us-west-2
-
+        echo "::set-secret name=BUCKET_NAME::${BUCKET_NAME}"
     - name: Install dependencies
       run: npm install @octokit/rest tweetnacl tweetnacl-util
 
@@ -48,5 +47,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         REPO_OWNER: ${{ github.repository_owner }}
         REPO_NAME: ${{ github.event.repository.name }}
-        BUCKET_NAME: ${{ env.BUCKET_NAME }}
+        BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
       run: node setSecret.js
