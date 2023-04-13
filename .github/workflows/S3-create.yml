@@ -42,7 +42,7 @@ jobs:
     - name: Install dependencies
       run: |
         echo '{}' > package.json
-        npm install tweetsodium
+        npm install libsodium-wrappers
 
     - name: Set BUCKET_NAME secret
       uses: actions/github-script@v5
@@ -57,17 +57,18 @@ jobs:
            });
 
            // Encrypt the secret using the public key
-           const sodium = require('tweetsodium');
-           const messageBytes = Buffer.from(bucketName);
-           const keyBytes = Buffer.from(publicKey.key, 'base64');
-           const encryptedBytes = sodium.seal(messageBytes, keyBytes);
+           const sodium = require('libsodium-wrappers');
+           await sodium.ready;
+           const messageBytes = sodium.from_string(bucketName);
+           const keyBytes = sodium.from_base64(publicKey.key);
+           const encryptedBytes = sodium.crypto_box_seal(messageBytes, keyBytes);
 
            // Update the repository secret
            await github.rest.actions.createOrUpdateRepoSecret({
              owner: context.repo.owner,
              repo: context.repo.repo,
              secret_name: 'BUCKET_NAME',
-             encrypted_value: Buffer.from(encryptedBytes).toString('base64'),
+             encrypted_value: sodium.to_base64(encryptedBytes),
              key_id: publicKey.key_id
              });
       env:
