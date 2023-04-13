@@ -43,7 +43,7 @@ jobs:
       run: |
         TIMESTAMP=$(date '+%Y-%m-%d-%H-%M-%S')
         ZIP_NAME="website-files-${TIMESTAMP}.zip"
-        aws s3 cp "s3://${{ env.BUCKET_NAME }}" "s3://${{ env.BUCKET_NAME }}/${ZIP_NAME}" --no-recursive
+        aws s3 cp "s3://${{ env.BUCKET_NAME }}" "s3://${{ env.BUCKET_NAME }}/${ZIP_NAME}" --recursive --exclude '*' --include '*.txt'
 
     - name: Print the URL of the zipped files
       run: |
