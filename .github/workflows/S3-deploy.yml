@@ -7,7 +7,7 @@ env:
   AWS_REGION: us-west-2
   
 jobs:
-  deploy:
+  create:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
