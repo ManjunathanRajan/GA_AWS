@@ -6,8 +6,6 @@ on:
 env:
   AWS_REGION: us-west-2
   ECR_REPOSITORY: my-ecr-repo
-  K8S_NAMESPACE: my-k8s-namespace
-  K8S_DEPLOYMENT_NAME: my-k8s-deployment
 
 jobs:
   deploy:
