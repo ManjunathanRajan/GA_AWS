@@ -8,7 +8,7 @@ env:
   ECR_REPOSITORY: my-ecr-repo
 
 jobs:
-  deploy:
+  deploy_ecs_ecr:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
