@@ -3,9 +3,9 @@
     "containerDefinitions": [
         {
             "name": "my-container",
-            "image": "716514200744.dkr.ecr.us-west-2.amazonaws.com/my-ecr-repo:latest",
-            "cpu": 1024,
-            "memory": 2048,
+            "image": "12345678910.dkr.ecr.us-west-2.amazonaws.com/my-ecr-repo:latest",
+            "cpu": 2048,
+            "memory": 4096,
             "portMappings": [
                 {
                     "containerPort": 80,
@@ -19,11 +19,9 @@
             "volumesFrom": []
         }
     ],
-    "executionRoleArn": "arn:aws:iam::716514200744:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::12345678910:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "requiresCompatibilities": [
-        "FARGATE"
-    ],
+    "placementConstraints": [],
     "cpu": "2048",
-    "memory": "4096"
+    "memory": "6144"
 }
