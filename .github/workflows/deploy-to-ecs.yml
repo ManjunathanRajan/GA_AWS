@@ -39,12 +39,16 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
+    - name: Get AWS Account ID
+      id: aws_account_id
+      run: echo "::set-output name=aws_account_id::$(aws sts get-caller-identity --query Account --output text)"
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
         context: .
         push: true
-        tags: ${{ env.716514200744 }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+        tags: ${{ steps.aws_account_id.outputs.aws_account_id }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
     - name: Render Amazon ECS task definition
       id: render-web-container
