@@ -61,6 +61,7 @@ jobs:
       id: render-web-container
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
+        task-definition: task-definition.json
         container-name: my-container
         image: ${{ steps.aws_account_id.outputs.aws_account_id }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ steps.get_short_sha.outputs.sha_short }}
 
