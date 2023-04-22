@@ -1,11 +1,11 @@
 {
-    "family": "my-task-definition",
+    "family": "my-task-definition-1",
     "containerDefinitions": [
         {
             "name": "my-container",
-            "image": "12345678910.dkr.ecr.us-west-2.amazonaws.com/my-ecr-repo:latest",
-            "cpu": 2048,
-            "memory": 4096,
+            "image": "716514200744.dkr.ecr.us-west-2.amazonaws.com/my-ecr-repo:latest",
+            "cpu": 0,
+            "links": [],
             "portMappings": [
                 {
                     "containerPort": 80,
@@ -14,14 +14,36 @@
                 }
             ],
             "essential": true,
+            "entryPoint": [],
+            "command": [],
             "environment": [],
+            "environmentFiles": [],
             "mountPoints": [],
-            "volumesFrom": []
+            "volumesFrom": [],
+            "secrets": [],
+            "dnsServers": [],
+            "dnsSearchDomains": [],
+            "extraHosts": [],
+            "dockerSecurityOptions": [],
+            "dockerLabels": {},
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/my-task-definition-1",
+                    "awslogs-region": "us-west-2",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
         }
     ],
-    "executionRoleArn": "arn:aws:iam::12345678910:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::716514200744:role/ECS-deployv3-ECSTaskExecutionRole-834CX405QAG4",
     "networkMode": "awsvpc",
-    "placementConstraints": [],
-    "cpu": "2048",
-    "memory": "6144"
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512"
 }
