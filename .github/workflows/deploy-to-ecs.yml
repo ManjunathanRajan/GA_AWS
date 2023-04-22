@@ -5,7 +5,7 @@ on:
 
 env:
   AWS_REGION: us-west-2
-  ECR_REPOSITORY: my-ecr-repo
+  ECR_REPOSITORY: my-ecr-repo:latest
 
 jobs:
   deploy:
