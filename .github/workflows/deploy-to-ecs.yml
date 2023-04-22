@@ -43,12 +43,19 @@ jobs:
       id: aws_account_id
       run: echo "::set-output name=aws_account_id::$(aws sts get-caller-identity --query Account --output text)"
 
+    - name: Get short SHA
+      id: get_short_sha
+      run: echo "::set-output name=sha_short::$(echo ${GITHUB_SHA::4})"
+      env:
+        GITHUB_SHA: ${{ github.sha }}
+
     - name: Build and push Docker image
+      id: build-push
       uses: docker/build-push-action@v2
       with:
         context: .
         push: true
-        tags: ${{ steps.aws_account_id.outputs.aws_account_id }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+        tags: ${{ steps.aws_account_id.outputs.aws_account_id }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ steps.get_short_sha.outputs.sha_short }}
 
     - name: Render Amazon ECS task definition
       id: render-web-container
@@ -56,7 +63,7 @@ jobs:
       with:
         task-definition: task-definition.json
         container-name: my-container
-        image: ${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+        image: ${{ steps.aws_account_id.outputs.aws_account_id }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ steps.get_short_sha.outputs.sha_short }}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
