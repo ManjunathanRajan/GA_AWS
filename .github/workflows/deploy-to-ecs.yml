@@ -5,7 +5,7 @@ on:
 
 env:
   AWS_REGION: us-west-2
-  ECR_REPOSITORY: my-ecr-repo:latest
+  ECR_REPOSITORY: my-ecr-repo
 
 jobs:
   deploy:
@@ -44,7 +44,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+        tags: ${{ env.716514200744 }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
     - name: Render Amazon ECS task definition
       id: render-web-container
