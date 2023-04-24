@@ -1,2 +1,2 @@
 # AWS - Testing github actions to AWS
-## AWS Codedeploy from Github Actions CI & CD pipeline
+## GitHub Actions to deploy your code to AWS is a great way to automate the build, test, and deployment process for your projects
