@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      # Specify the runtime versions required for your application (e.g., python, nodejs, etc.)
+      python: 3.8
+  pre_build:
+    commands:
+      - echo "Installing Packer..."
+      - curl -o packer.zip https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
+      - unzip packer.zip
+      - sudo mv packer /usr/local/bin/
+  build:
+    commands:
+      - echo "Building application..."
+      # Add your application build commands here
+      - echo "Creating golden image using Packer..."
+      - packer build packer.json
